@@ -1,0 +1,15 @@
+redis:
+  database: 1
+  host: 127.0.0.1
+  port: 6379
+  timeout: 2000
+  pool:
+    max-idle: 8
+    min-idle: 0
+    max-active: 8
+    max-wait: -1
+http:
+  encoding:
+    force: true
+    charset: UTF-8
+    enabled: true
