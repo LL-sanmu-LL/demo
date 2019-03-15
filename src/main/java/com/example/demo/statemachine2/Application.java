@@ -1,5 +1,6 @@
 package com.example.demo.statemachine2;
 
+import java.util.Map;
 import javax.annotation.Resource;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -43,9 +44,11 @@ public class Application implements CommandLineRunner {
     m1.start();
     System.out.println("m1状态：" + m1.getState().getId());
     m1.sendEvent(ProcessEvents.event1);
+    m1.getExtendedState().getVariables().put("name", "李琳");
     persister.persist(m1, "mysm");
     persister.restore(m2, "mysm");
     System.out.println("m2状态：" + m2.getState().getId());
+    Map var = m2.getExtendedState().getVariables();
   }
 
 }

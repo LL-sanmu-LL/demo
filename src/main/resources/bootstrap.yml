@@ -13,3 +13,9 @@ http:
     force: true
     charset: UTF-8
     enabled: true
+spring:
+  elasticsearch:
+      jest:
+        uris: http://127.0.0.1:9200
+      indices: b2b
+      type: docs
