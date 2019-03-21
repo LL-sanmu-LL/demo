@@ -22,7 +22,7 @@
 
 
   <!-- 记录其他jar下的日志(错误日志) -->
-  <root level="error">
+  <root level="debug">
     <appender-ref ref="stdout"/>
     <!--<appender-ref ref="file"/>-->
   </root>

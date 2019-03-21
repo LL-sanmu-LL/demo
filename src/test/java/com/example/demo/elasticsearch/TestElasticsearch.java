@@ -17,10 +17,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder.Field;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -177,8 +179,69 @@ public class TestElasticsearch {
         .addIndex(indexName)
         .addType(typeName)
         .build();
+    SearchResult result = jestClient.execute(search);
+    System.out.println("查询结果"+result.getJsonString());
+    System.out.println("本次查询共查到："+result.getTotal()+"篇文章！");
+    List<Hit<BookDoc,Void>> hits = result.getHits(BookDoc.class);
+    System.out.println(hits.size());
+    for (Hit<BookDoc, Void> hit : hits) {
+      BookDoc source = hit.source;
+      System.out.println(source.toString());
+      //获取高亮后的内容
+      Map<String, List<String>> highlight = hit.highlight;
+      System.out.println(highlight);
 
+    }
+  }
+  @Test
+  public void highlightSearch2() throws IOException {
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    searchSourceBuilder.query(QueryBuilders.termQuery("desc", "字符串"));
+//    searchSourceBuilder.query(QueryBuilders.termQuery("title", "字符串"));
+    searchSourceBuilder.query(QueryBuilders.multiMatchQuery("字符串", "title", "字符串", "desc"));
 
+    HighlightBuilder highlightBuilder = new HighlightBuilder();
+    highlightBuilder.field("desc");//高亮title
+    highlightBuilder.field("title");//高亮title
+    highlightBuilder.preTags("<em>").postTags("</em>");//高亮标签
+    highlightBuilder.fragmentSize(500);//高亮内容长度
+    searchSourceBuilder.highlighter(highlightBuilder);
+    Search search = new Search.Builder(searchSourceBuilder.toString())
+        .addIndex("accounts")
+        .addType("person")
+        .build();
+    SearchResult result = jestClient.execute(search);
+    System.out.println("查询结果"+result.getJsonString());
+    System.out.println("本次查询共查到："+result.getTotal()+"篇文章！");
+    List<Hit<BookDoc,Void>> hits = result.getHits(BookDoc.class);
+    System.out.println(hits.size());
+    for (Hit<BookDoc, Void> hit : hits) {
+      BookDoc source = hit.source;
+      System.out.println(source.toString());
+      //获取高亮后的内容
+      Map<String, List<String>> highlight = hit.highlight;
+      System.out.println(highlight);
+
+    }
+  }
+  @Test
+  public void highlightSearch3() throws IOException {
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    searchSourceBuilder.query(QueryBuilders.multiMatchQuery("we share more", "title","desc"));
+
+    HighlightBuilder highlightBuilder = new HighlightBuilder();
+    highlightBuilder.field("desc");//高亮title
+    highlightBuilder.field("title");//高亮title
+    highlightBuilder.preTags("<em>").postTags("</em>");//高亮标签
+    highlightBuilder.fragmentSize(20);//高亮内容长度
+    searchSourceBuilder.highlighter(highlightBuilder);
+  // 设置分页
+    searchSourceBuilder.from(0);
+    searchSourceBuilder.size(1);
+    Search search = new Search.Builder(searchSourceBuilder.toString())
+        .addIndex("accounts")
+        .addType("person")
+        .build();
     SearchResult result = jestClient.execute(search);
     System.out.println("查询结果"+result.getJsonString());
     System.out.println("本次查询共查到："+result.getTotal()+"篇文章！");
